@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -8,6 +10,7 @@ import (
 	"github.com/go-chi/render"
 )
 
+// PaymentsPath is the relative path for payments
 const PaymentsPath = "/payments"
 
 // GetMux generates the app router
@@ -28,6 +31,10 @@ func (s *Service) GetMux() *chi.Mux {
 		// use logrus for logging
 		middleware.RequestLogger(&StructuredLogger{s.logger}),
 	)
+
+	r.Use(apiVersionCtx("v1"))
+	// each version will expose a different router (set of routes)
+	// version str could come from url or request payloads
 
 	r.Mount(PaymentsPath, getPaymentsRouter(s))
 
@@ -50,4 +57,13 @@ func getPaymentsRouter(s *Service) *chi.Mux {
 	})
 
 	return r
+}
+
+func apiVersionCtx(version string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r = r.WithContext(context.WithValue(r.Context(), "api.version", version))
+			next.ServeHTTP(w, r)
+		})
+	}
 }
