@@ -1,0 +1,13 @@
+.idea
+.cache
+vendor
+bin
+*.iml
+
+# mongo
+data
+
+coverage.txt
+
+# build artifacts
+build

@@ -1,0 +1,37 @@
+# This is what I use instead of Postman.
+# The requests library could probably be run with node as end to end testing during CI.
+# https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html#using-response-handler-scripts
+
+POST {{host}}/{{paymentsPath}}
+Content-Type: application/json
+
+{"version": 1}
+
+> {%
+client.test("Create payment", function() {
+  client.assert(response.status === 200, "Response not successful");
+  client.assert(response.body.id != null, "No id in response");
+  client.global.set("paymentId", response.body.id)
+});
+client.test("Response content-type is json", function() {
+  var type = response.contentType.mimeType;
+  client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+});
+%}
+
+
+###
+GET {{host}}/{{paymentsPath}}/{{paymentId}}
+Content-Type: application/json
+
+> {%
+client.test("Response successful", function() {
+  client.assert(response.status === 200, "Response not successful");
+});
+client.test("Response content-type is json", function() {
+  var type = response.contentType.mimeType;
+  client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+});
+%}
+
+###
