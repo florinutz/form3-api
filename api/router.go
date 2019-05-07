@@ -14,6 +14,7 @@ import (
 const PaymentsPath = "/payments"
 
 // GetMux generates the app router
+// todo don't generate the router every time
 func (s *Service) GetMux() *chi.Mux {
 	r := chi.NewRouter()
 
@@ -36,6 +37,7 @@ func (s *Service) GetMux() *chi.Mux {
 	// each version will expose a different router (set of routes)
 	// version str could come from url or request payloads
 
+	// todo handle the OPTIONS method so that the API becomes self-documenting
 	r.Mount(PaymentsPath, getPaymentsRouter(s))
 
 	return r

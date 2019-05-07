@@ -25,5 +25,8 @@ mongo_start: ## runs mongo
 mongo_shell: ## access the mongo shell
 	docker exec -it mongo mongo
 
+docs: ## output router markdown docs to stdout
+	./bin -doc
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'

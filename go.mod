@@ -3,6 +3,7 @@ module form3
 require (
 	github.com/florinutz/gz-boltdb v0.0.0-20190403135551-9bc3f2e9f86d
 	github.com/go-chi/chi v4.0.2+incompatible
+	github.com/go-chi/docgen v1.0.5
 	github.com/go-chi/render v1.0.1
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
@@ -13,5 +14,4 @@ require (
 	golang.org/x/sys v0.0.0-20190425145619-16072639606e // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
-	gopkg.in/yaml.v2 v2.2.2 // indirect
 )

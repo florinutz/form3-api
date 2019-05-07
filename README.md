@@ -14,12 +14,16 @@ docker run -d --name mongo \
     --bind_ip_all
 ```
 
-And don't forget the env DSN:
-
-```bash
-MONGO_DSN=localhost
-```
-
 ## Usage
-
+```bash
+make binary
+MONGO_DSN=localhost ./bin
+```
 Use make and check out the tests!
+Payment routes are mounted under the /payments namespace
+
+### Generate router docs
+(quite ugly)
+```bash
+./bin -doc > doc_filename.md
+```

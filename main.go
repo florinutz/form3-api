@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,11 +10,25 @@ import (
 	"form3/api"
 	"form3/business/mongo"
 
+	"github.com/go-chi/docgen"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
+var routes = flag.Bool("doc", false, "Generate router documentation")
+
 func main() {
+	flag.Parse()
+
+	if *routes {
+		fmt.Println(docgen.MarkdownRoutesDoc((&api.Service{}).GetMux(), docgen.MarkdownOpts{
+			ProjectPath: "form3-payments-api",
+			Intro:       "Welcome to the form3-payments-api generated docs.",
+		}))
+
+		return
+	}
+
 	dsn, ok := os.LookupEnv("MONGO_DSN")
 	if !ok {
 		fatal("you need to set MONGO_DSN (https://godoc.org/gopkg.in/mgo.v2#Dial)", nil)
