@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - 1.11.x
+
+notifications:
+  email: false
+
+git:
+  depth: 1
+
+env:
+  - GO111MODULE=on
+
+script:
+  - if [ -n "$(go fmt ./...)" ]; then exit 1; fi
+  - make all
