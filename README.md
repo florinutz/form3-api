@@ -1,4 +1,4 @@
-# Form3 payments api
+# Form3 payments api [![Build Status](https://travis-ci.org/florinutz/form3-api.svg?branch=master)](https://travis-ci.org/florinutz/form3-api)
 
 * You should use best practice, for example TDD/BDD, with a focus on full-stack testing
 * Prioritize correctness, robustness, and extensibility over extra features and optimizations.
