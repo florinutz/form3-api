@@ -10,8 +10,8 @@ import (
 	"github.com/go-chi/render"
 )
 
-// PaymentsPath is the relative path for payments
-const PaymentsPath = "/payments"
+// RootPath is the relative path for payments
+const RootPath = "/"
 
 // GetMux generates the app router
 // todo don't generate the router every time
@@ -38,24 +38,17 @@ func (s *Service) GetMux() *chi.Mux {
 	// version str could come from url or request payloads
 
 	// todo handle the OPTIONS method so that the API becomes self-documenting
-	r.Mount(PaymentsPath, getPaymentsRouter(s))
+	r.Mount(RootPath, getPaymentsRouter(s))
 
 	return r
 }
 
 func getPaymentsRouter(s *Service) *chi.Mux {
 	r := chi.NewRouter()
-	accessCORSLocationMiddleware := middleware.SetHeader("Access-Control-Expose-Headers", "Location")
-
-	r.Use(accessCORSLocationMiddleware)
-	r.Post("/", s.Create)
-	r.Get("/", s.List) // todo add a paginator middleware for this route
-
-	r.Route("/{paymentID}", func(r chi.Router) {
-		r.Use(s.singlePaymentCtx) // Load the *Payment on the request context or return 404 if paymentID is not found
+	r.Use(middleware.SetHeader("Access-Control-Expose-Headers", "Location"))
+	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", s.Retrieve)
-		r.Put("/", s.Update)
-		r.Delete("/", s.Delete)
+		r.Post("/", s.Create)
 	})
 
 	return r

@@ -4,72 +4,42 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
-	"time"
 
 	"form3/api"
-	"form3/business/mongo"
+	"form3/business/sqlite"
 
 	"github.com/go-chi/docgen"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
-var routes = flag.Bool("doc", false, "Generate router documentation")
+var doImport = flag.Bool("import", false, "run the import before starting the server")
+var addr = flag.String("addr", ":14051", "Server listen address")
+var storage = flag.String("storage", ":memory:", "Either ':memory:' or a file path for sqlite")
 
 func main() {
 	flag.Parse()
 
-	if *routes {
-		fmt.Println(docgen.MarkdownRoutesDoc((&api.Service{}).GetMux(), docgen.MarkdownOpts{
-			ProjectPath: "form3-payments-api",
-			Intro:       "Welcome to the form3-payments-api generated docs.",
-		}))
-
-		return
-	}
-
-	dsn, ok := os.LookupEnv("MONGO_DSN")
-	if !ok {
-		fatal("you need to set MONGO_DSN (https://godoc.org/gopkg.in/mgo.v2#Dial)", nil)
-	}
-
-	logger := getLogger()
-
-	service, err := getService(dsn, logger)
+	persistence, err := sqlite.New(*storage)
 	if err != nil {
-		fatal("can't instantiate service", err)
+		log.Fatalf("can't initialize storage: %w", err)
+	}
+	logger := log.New()
+	logger.Formatter = &log.TextFormatter{DisableTimestamp: true}
+
+	service := api.NewService(persistence, *logger)
+
+	if *doImport {
+		if err := persistence.ImportData(); err != nil {
+			log.Fatalf("Import failed: %w", err)
+		}
 	}
 
-	fmt.Printf("url: %s\n", "http://localhost:8080")
+	fmt.Printf("starting server on %s with the following middlewares and routes:\n\n", *addr)
+	fmt.Println(docgen.MarkdownRoutesDoc((&api.Service{}).GetMux(), docgen.MarkdownOpts{
+		ProjectPath: "christmas-api",
+	}))
 
-	if err = http.ListenAndServe(":8080", service.GetMux()); err != nil {
-		fatal("server crashed", err)
+	if err = http.ListenAndServe(*addr, service.GetMux()); err != nil {
+		log.Fatalf("server crashed:\n%w", err)
 	}
-}
-
-func fatal(wrap string, err error) {
-	if err != nil {
-		err = errors.Wrap(err, wrap)
-	} else {
-		err = errors.New(wrap)
-	}
-	_, _ = fmt.Fprintln(os.Stderr, err)
-	os.Exit(1)
-}
-
-func getService(dsn string, logger *logrus.Logger) (*api.Service, error) {
-	persistenceLayer, err := mongo.New(dsn, 2*time.Second)
-	if err != nil {
-		return nil, err
-	}
-
-	return api.NewService(persistenceLayer, *logger), err
-}
-
-func getLogger() *logrus.Logger {
-	logger := logrus.New()
-	logger.Formatter = &logrus.TextFormatter{DisableTimestamp: true}
-
-	return logger
 }

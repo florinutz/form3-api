@@ -1,55 +1,37 @@
 package business
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	"time"
 
-type BeneficiaryParty struct {
-	AccountName       string `json:"account_name,omitempty"`
-	AccountNumber     string `json:"account_number,omitempty"`
-	AccountNumberCode string `json:"account_number_code,omitempty"`
-	Address           string `json:"address,omitempty"`
-	// ...
+	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
+)
+
+type Base struct {
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;not null;"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
 }
 
-type DebtorParty struct {
-	AccountName       string `json:"account_name,omitempty"`
-	AccountNumber     string `json:"account_number,omitempty"`
-	AccountNumberCode string `json:"account_number_code,omitempty"`
-	Address           string `json:"address,omitempty"`
-	// ...
+func (base *Base) BeforeCreate(scope *gorm.Scope) error {
+	id := uuid.NewV4()
+	return scope.SetColumn("ID", id)
 }
 
-type SponsorParty struct {
-	AccountNumber string `json:"account_number,omitempty"`
-	BankId        int    `json:"bank_id,omitempty"`
-	BankIdCode    string `json:"bank_id_code,omitempty"`
+type Employee struct {
+	Base
+	Name       string `gorm:"not null;"`
+	Categories []*Category
 }
 
-type SenderCharge struct {
-	Amount   float64 `json:"amount,omitempty"`
-	Currency string  `json:"currency,omitempty"`
+type Category struct {
+	Base
+	Name string `json:"name,omitempty" gorm:"unique;not null;"`
 }
 
-type ChargesInformation struct {
-	BearerCode    string         `json:"bearer_code,omitempty"`
-	SenderCharges []SenderCharge `json:"sender_charges,omitempty"`
-	// ...
-}
-
-type Attributes struct {
-	Amount             float32             `json:"amount,omitempty"`
-	Currency           string              `json:"currency,omitempty"`
-	BeneficiaryParty   *BeneficiaryParty   `json:"beneficiary_party,omitempty"`
-	DebtorParty        *DebtorParty        `json:"debtor_party,omitempty"`
-	SponsorParty       *SponsorParty       `json:"sponsor_party,omitempty"`
-	ChargesInformation *ChargesInformation `json:"charges_information,omitempty"`
-	EndToEndReference  string              `json:"end_to_end_reference,omitempty"`
-	ProcessingDate     int64               `json:"processing_date,omitempty"`
-	// ...
-}
-
-type Payment struct {
-	Id             bson.ObjectId `bson:"_id" json:"id,omitempty"`
-	Version        int           `json:"version,omitempty"`
-	OrganisationId bson.ObjectId `json:"organisation_id,omitempty"`
-	Attributes     *Attributes   `json:"attributes,omitempty"`
+type Gift struct {
+	Base
+	Name       string `json:"name,omitempty" gorm:"unique;not null;"`
+	Categories []*Category
 }

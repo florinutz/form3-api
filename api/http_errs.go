@@ -48,9 +48,3 @@ func ErrInternalError(err error) render.Renderer {
 }
 
 var ErrNotFound = &ErrResponse{HTTPStatusCode: http.StatusNotFound, StatusText: http.StatusText(http.StatusNotFound)}
-
-// ErrNotImplemented is not used currently (as everything is implemented), but it's supposed to be returned whenever
-// something was not implemented.
-var ErrNotImplemented = &ErrResponse{HTTPStatusCode: http.StatusNotFound, StatusText: "This is not implemented, " +
-	"as I don't want to play with mongo more than I have to, but you get the idea. " +
-	"Please check the in-memory implementation."}
